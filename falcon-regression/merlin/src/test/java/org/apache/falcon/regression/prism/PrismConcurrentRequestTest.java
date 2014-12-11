@@ -24,6 +24,7 @@ import org.apache.falcon.regression.core.helpers.ColoHelper;
 import org.apache.falcon.regression.core.supportClasses.Brother;
 import org.apache.falcon.regression.core.util.AssertUtil;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.OSUtil;
 import org.apache.falcon.regression.core.util.TimeUtil;
 import org.apache.falcon.regression.core.util.Util;
@@ -32,14 +33,11 @@ import org.apache.falcon.regression.testHelper.BaseTestClass;
 import org.apache.log4j.Logger;
 import org.apache.oozie.client.Job;
 import org.apache.oozie.client.OozieClient;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
 
 
 /**
@@ -62,8 +60,7 @@ public class PrismConcurrentRequestTest extends BaseTestClass {
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void setup(Method method) throws Exception {
-        LOGGER.info("test name: " + method.getName());
+    public void setup() throws Exception {
         bundles[0] = BundleUtil.readELBundle();
         bundles[0].generateUniqueBundle();
         bundles[0] = new Bundle(bundles[0], cluster);
@@ -75,7 +72,7 @@ public class PrismConcurrentRequestTest extends BaseTestClass {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
-        removeBundles();
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     /**
@@ -270,10 +267,5 @@ public class PrismConcurrentRequestTest extends BaseTestClass {
                 + Util.prettyPrintXml(brother.getOutput().getMessage()));
             AssertUtil.assertSucceeded(brother.getOutput());
         }
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
     }
 }

@@ -26,6 +26,7 @@ import org.apache.falcon.regression.core.helpers.ColoHelper;
 import org.apache.falcon.regression.core.response.ServiceResponse;
 import org.apache.falcon.regression.core.util.AssertUtil;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.HadoopUtil;
 import org.apache.falcon.regression.core.util.InstanceUtil;
 import org.apache.falcon.regression.core.util.OSUtil;
@@ -36,14 +37,11 @@ import org.apache.falcon.regression.testHelper.BaseTestClass;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
 
 /**
  * Feed cluster update tests.
@@ -82,14 +80,12 @@ public class FeedClusterUpdateTest extends BaseTestClass {
             HadoopUtil.deleteDirIfExists(baseTestDir, cluster3FS);
             HadoopUtil.lateDataReplenish(cluster3FS, 80, 1, baseTestDir, postFix);
         } finally {
-            removeBundles();
+            CleanupUtil.cleanAllEntities(prism);
         }
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void setup(Method method) throws Exception {
-        LOGGER.info("test name: " + method.getName());
-
+    public void setup() throws Exception {
         Bundle bundle = BundleUtil.readELBundle();
         for (int i = 0; i < 3; i++) {
             bundles[i] = new Bundle(bundle, servers.get(i));
@@ -104,7 +100,7 @@ public class FeedClusterUpdateTest extends BaseTestClass {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
-        removeBundles();
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     @Test(enabled = false, groups = {"multiCluster"})
@@ -915,9 +911,4 @@ public class FeedClusterUpdateTest extends BaseTestClass {
 
     }
     */
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
-    }
 }

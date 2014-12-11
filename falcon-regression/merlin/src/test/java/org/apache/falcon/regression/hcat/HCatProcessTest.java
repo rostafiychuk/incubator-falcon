@@ -28,6 +28,7 @@ import org.apache.falcon.entity.v0.process.EngineType;
 import org.apache.falcon.regression.core.helpers.ColoHelper;
 import org.apache.falcon.regression.core.util.AssertUtil;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.HCatUtil;
 import org.apache.falcon.regression.core.util.HadoopUtil;
 import org.apache.falcon.regression.core.util.InstanceUtil;
@@ -51,13 +52,11 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -639,11 +638,6 @@ public class HCatProcessTest extends BaseTestClass {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
-        removeBundles();
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
+        CleanupUtil.cleanAllEntities(prism);
     }
 }

@@ -27,6 +27,7 @@ import org.apache.falcon.entity.v0.feed.ClusterType;
 import org.apache.falcon.regression.core.helpers.ColoHelper;
 import org.apache.falcon.regression.core.util.AssertUtil;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.HadoopUtil;
 import org.apache.falcon.regression.core.util.InstanceUtil;
 import org.apache.falcon.regression.core.util.OSUtil;
@@ -38,14 +39,11 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.log4j.Logger;
 import org.apache.oozie.client.CoordinatorAction.Status;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -71,8 +69,7 @@ public class ProcessInstanceColoMixedTest extends BaseTestClass {
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void setup(Method method) throws Exception {
-        LOGGER.info("test name: " + method.getName());
+    public void setup() throws Exception {
 
         //get 3 unique bundles
         bundles[0] = BundleUtil.readELBundle();
@@ -97,9 +94,8 @@ public class ProcessInstanceColoMixedTest extends BaseTestClass {
     }
 
     @AfterMethod(alwaysRun = true)
-    public void tearDown(Method method) {
-        LOGGER.info("tearDown " + method.getName());
-        removeBundles();
+    public void tearDown() {
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     @Test(timeOut = 12000000)
@@ -250,11 +246,6 @@ public class ProcessInstanceColoMixedTest extends BaseTestClass {
             "?start=" + processStartTime + "&end=" + TimeUtil.addMinsToTime(processStartTime, 7));
         AssertUtil.assertSucceeded(responseInstance);
         Assert.assertTrue(responseInstance.getInstances() != null);
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
     }
 }
 

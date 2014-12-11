@@ -23,20 +23,18 @@ import org.apache.falcon.regression.core.bundle.Bundle;
 import org.apache.falcon.regression.core.helpers.ColoHelper;
 import org.apache.falcon.regression.core.util.AssertUtil;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.InstanceUtil;
 import org.apache.falcon.regression.core.util.OSUtil;
 import org.apache.falcon.regression.core.util.TimeUtil;
 import org.apache.falcon.regression.core.util.Util;
 import org.apache.falcon.regression.testHelper.BaseTestClass;
 import org.apache.log4j.Logger;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -57,8 +55,7 @@ public class RescheduleKilledProcessTest extends BaseTestClass {
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void setUp(Method method) throws Exception {
-        LOGGER.info("test name: " + method.getName());
+    public void setUp() throws Exception {
         bundles[0] = BundleUtil.readELBundle();
         bundles[0] = new Bundle(bundles[0], cluster);
         bundles[0].generateUniqueBundle();
@@ -67,7 +64,7 @@ public class RescheduleKilledProcessTest extends BaseTestClass {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
-        removeBundles();
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     /**
@@ -126,10 +123,5 @@ public class RescheduleKilledProcessTest extends BaseTestClass {
         AssertUtil.assertSucceeded(prism.getProcessHelper().delete(processData));
         AssertUtil.assertSucceeded(prism.getProcessHelper().submitEntity(processData));
         AssertUtil.assertSucceeded(prism.getProcessHelper().schedule(processData));
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
     }
 }

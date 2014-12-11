@@ -26,6 +26,7 @@ import org.apache.falcon.regression.core.response.lineage.Direction;
 import org.apache.falcon.regression.core.response.lineage.Vertex;
 import org.apache.falcon.regression.core.response.lineage.VerticesResult;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.GraphAssert;
 import org.apache.falcon.regression.core.util.HadoopUtil;
 import org.apache.falcon.regression.core.util.InstanceUtil;
@@ -39,14 +40,11 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.log4j.Logger;
 import org.apache.oozie.client.Job;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +77,7 @@ public class LineageApiProcessInstanceTest extends BaseTestClass {
     }
 
     @BeforeMethod(alwaysRun = true, firstTimeOnly = true)
-    public void setup(Method method) throws Exception {
+    public void setup() throws Exception {
         HadoopUtil.deleteDirIfExists(baseTestHDFSDir, clusterFS);
         HadoopUtil.uploadDir(clusterFS, aggregateWorkflowDir, OSUtil.RESOURCES_OOZIE);
 
@@ -122,7 +120,7 @@ public class LineageApiProcessInstanceTest extends BaseTestClass {
 
     @AfterMethod(alwaysRun = true, lastTimeOnly = true)
     public void tearDown() {
-        removeBundles();
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     /**
@@ -227,10 +225,5 @@ public class LineageApiProcessInstanceTest extends BaseTestClass {
                 "Expecting output feed instance time and process instance time to be same");
         }
 
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
     }
 }

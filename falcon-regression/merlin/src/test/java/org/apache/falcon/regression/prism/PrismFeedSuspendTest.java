@@ -23,21 +23,18 @@ import org.apache.falcon.regression.core.bundle.Bundle;
 import org.apache.falcon.regression.core.helpers.ColoHelper;
 import org.apache.falcon.regression.core.util.AssertUtil;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.OSUtil;
 import org.apache.falcon.regression.core.util.Util;
 import org.apache.falcon.regression.testHelper.BaseTestClass;
-import org.apache.log4j.Logger;
 import org.apache.oozie.client.Job;
 import org.apache.oozie.client.OozieClient;
 import org.testng.TestNGException;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
 
 /**
  * Suspend feed via prism tests.
@@ -49,7 +46,6 @@ public class PrismFeedSuspendTest extends BaseTestClass {
     private OozieClient cluster1OC = serverOC.get(0);
     private OozieClient cluster2OC = serverOC.get(1);
     private String aggregateWorkflowDir = baseHDFSDir + "/PrismFeedSuspendTest/aggregator";
-    private static final Logger LOGGER = Logger.getLogger(PrismFeedSuspendTest.class);
 
     @BeforeClass(alwaysRun = true)
     public void uploadWorkflow() throws Exception {
@@ -57,8 +53,7 @@ public class PrismFeedSuspendTest extends BaseTestClass {
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void setUp(Method method) throws Exception {
-        LOGGER.info("test name: " + method.getName());
+    public void setUp() throws Exception {
         Bundle bundle = BundleUtil.readELBundle();
         for (int i = 0; i < 2; i++) {
             bundles[i] = new Bundle(bundle, servers.get(i));
@@ -69,7 +64,7 @@ public class PrismFeedSuspendTest extends BaseTestClass {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
-        removeBundles();
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     /**
@@ -314,10 +309,5 @@ public class PrismFeedSuspendTest extends BaseTestClass {
         } finally {
             Util.restartService(cluster1.getProcessHelper());
         }
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
     }
 }

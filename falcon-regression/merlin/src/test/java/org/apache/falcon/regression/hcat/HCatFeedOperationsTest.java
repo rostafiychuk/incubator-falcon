@@ -30,6 +30,7 @@ import org.apache.falcon.regression.core.helpers.ColoHelper;
 import org.apache.falcon.regression.core.response.ServiceResponse;
 import org.apache.falcon.regression.core.util.AssertUtil;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.HCatUtil;
 import org.apache.falcon.regression.core.util.OSUtil;
 import org.apache.falcon.regression.core.util.Util;
@@ -39,7 +40,6 @@ import org.apache.hive.hcatalog.api.HCatClient;
 import org.apache.hive.hcatalog.api.HCatCreateTableDesc;
 import org.apache.hive.hcatalog.common.HCatException;
 import org.apache.hive.hcatalog.data.schema.HCatFieldSchema;
-import org.apache.log4j.Logger;
 import org.apache.oozie.client.Job;
 import org.apache.oozie.client.OozieClient;
 import org.testng.Assert;
@@ -50,7 +50,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,7 +71,6 @@ public class HCatFeedOperationsTest extends BaseTestClass {
     private String randomTblName = "randomTable_HcatFeedOperationsTest";
     private String feed;
     private String aggregateWorkflowDir = baseHDFSDir + "/HCatFeedOperationsTest/aggregator";
-    private static final Logger LOGGER = Logger.getLogger(HCatFeedOperationsTest.class);
 
     public void uploadWorkflow() throws Exception {
         uploadDirToClusters(aggregateWorkflowDir, OSUtil.RESOURCES_OOZIE);
@@ -95,8 +93,7 @@ public class HCatFeedOperationsTest extends BaseTestClass {
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void setUp(Method method) throws Exception {
-        LOGGER.info("test name: " + method.getName());
+    public void setUp() throws Exception {
         Bundle bundle = BundleUtil.readHCatBundle();
         bundles[0] = new Bundle(bundle, cluster.getPrefix());
         bundles[0].generateUniqueBundle();
@@ -110,7 +107,7 @@ public class HCatFeedOperationsTest extends BaseTestClass {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown() throws HCatException {
-        removeBundles();
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     @AfterClass(alwaysRun = true)
@@ -118,7 +115,6 @@ public class HCatFeedOperationsTest extends BaseTestClass {
         clusterHC.dropTable(dbName, tableName, true);
         clusterHC.dropTable(dbName, randomTblName, true);
         cluster2HC.dropTable(dbName, tableName, true);
-        cleanTestDirs();
     }
 
     /**

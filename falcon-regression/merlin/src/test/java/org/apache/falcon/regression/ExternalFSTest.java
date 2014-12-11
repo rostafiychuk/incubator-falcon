@@ -29,6 +29,7 @@ import org.apache.falcon.regression.core.enumsAndConstants.MerlinConstants;
 import org.apache.falcon.regression.core.helpers.ColoHelper;
 import org.apache.falcon.regression.core.util.AssertUtil;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.HadoopUtil;
 import org.apache.falcon.regression.core.util.InstanceUtil;
 import org.apache.falcon.regression.core.util.MatrixUtil;
@@ -57,7 +58,6 @@ import org.testng.annotations.Test;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -93,8 +93,7 @@ public class ExternalFSTest extends BaseTestClass{
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void setUp(Method method) throws JAXBException, IOException {
-        LOGGER.info("test name: " + method.getName());
+    public void setUp() throws JAXBException, IOException {
         Bundle bundle = BundleUtil.readFeedReplicationBundle();
 
         bundles[0] = new Bundle(bundle, cluster);
@@ -110,13 +109,12 @@ public class ExternalFSTest extends BaseTestClass{
 
     @AfterMethod
     public void tearDown() throws IOException {
-        removeBundles();
+        CleanupUtil.cleanAllEntities(prism);
         wasbFS.delete(new Path(testWasbTargetDir), true);
     }
 
     @AfterClass(alwaysRun = true)
     public void tearDownClass() throws IOException {
-        cleanTestDirs();
         wasbFS.delete(new Path(baseWasbDir), true);
     }
 

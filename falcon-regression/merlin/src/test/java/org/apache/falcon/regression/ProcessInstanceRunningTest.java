@@ -23,6 +23,7 @@ import org.apache.falcon.regression.core.bundle.Bundle;
 import org.apache.falcon.entity.v0.Frequency.TimeUnit;
 import org.apache.falcon.regression.core.enumsAndConstants.ResponseErrors;
 import org.apache.falcon.regression.core.helpers.ColoHelper;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.InstanceUtil;
 import org.apache.falcon.regression.core.util.OozieUtil;
 import org.apache.falcon.regression.core.util.HadoopUtil;
@@ -39,14 +40,11 @@ import org.apache.log4j.Logger;
 import org.apache.oozie.client.CoordinatorAction;
 import org.apache.oozie.client.Job;
 import org.apache.oozie.client.OozieClient;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
 
 /**
  * Regression for instance running api.
@@ -76,8 +74,7 @@ public class ProcessInstanceRunningTest extends BaseTestClass {
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void setup(Method method) throws Exception {
-        LOGGER.info("test name: " + method.getName());
+    public void setup() throws Exception {
         bundles[0] = BundleUtil.readELBundle();
         bundles[0] = new Bundle(bundles[0], cluster);
         bundles[0].generateUniqueBundle();
@@ -92,7 +89,7 @@ public class ProcessInstanceRunningTest extends BaseTestClass {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
-        removeBundles();
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     /**
@@ -191,10 +188,5 @@ public class ProcessInstanceRunningTest extends BaseTestClass {
         InstanceUtil.waitForBundleToReachState(cluster, processName, Job.Status.SUCCEEDED);
         InstancesResult r = prism.getProcessHelper().getRunningInstance(processName);
         InstanceUtil.validateSuccessWOInstances(r);
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
     }
 }

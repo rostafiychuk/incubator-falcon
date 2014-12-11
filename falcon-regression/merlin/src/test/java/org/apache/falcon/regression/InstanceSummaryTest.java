@@ -25,6 +25,7 @@ import org.apache.falcon.entity.v0.feed.ActionType;
 import org.apache.falcon.entity.v0.feed.ClusterType;
 import org.apache.falcon.regression.core.helpers.ColoHelper;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.HadoopUtil;
 import org.apache.falcon.regression.core.util.InstanceUtil;
 import org.apache.falcon.regression.core.util.OSUtil;
@@ -34,10 +35,8 @@ import org.apache.falcon.regression.testHelper.BaseTestClass;
 import org.apache.falcon.resource.InstancesSummaryResult;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.security.authentication.client.AuthenticationException;
-import org.apache.log4j.Logger;
 import org.apache.oozie.client.CoordinatorAction.Status;
 import org.apache.oozie.client.OozieClientException;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -45,7 +44,6 @@ import org.testng.annotations.Test;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.List;
@@ -67,7 +65,6 @@ public class InstanceSummaryTest extends BaseTestClass {
     private String endTime;
     private ColoHelper cluster3 = servers.get(2);
     private Bundle processBundle;
-    private static final Logger LOGGER = Logger.getLogger(InstanceSummaryTest.class);
     private String processName;
 
     @BeforeClass(alwaysRun = true)
@@ -85,8 +82,7 @@ public class InstanceSummaryTest extends BaseTestClass {
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void setup(Method method) throws Exception {
-        LOGGER.info("test name: " + method.getName());
+    public void setup() throws Exception {
         processBundle = BundleUtil.readELBundle();
         processBundle = new Bundle(processBundle, cluster3);
         processBundle.generateUniqueBundle();
@@ -268,12 +264,6 @@ public class InstanceSummaryTest extends BaseTestClass {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown() throws IOException {
-        processBundle.deleteBundle(prism);
-        removeBundles();
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
+        CleanupUtil.cleanAllEntities(prism);
     }
 }

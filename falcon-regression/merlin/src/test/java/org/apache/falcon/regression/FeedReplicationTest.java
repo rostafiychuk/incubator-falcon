@@ -26,6 +26,7 @@ import org.apache.falcon.entity.v0.feed.ClusterType;
 import org.apache.falcon.regression.core.helpers.ColoHelper;
 import org.apache.falcon.regression.core.util.AssertUtil;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.HadoopUtil;
 import org.apache.falcon.regression.core.util.InstanceUtil;
 import org.apache.falcon.regression.core.util.OSUtil;
@@ -45,14 +46,12 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -78,8 +77,7 @@ public class FeedReplicationTest extends BaseTestClass {
     private static final Logger LOGGER = Logger.getLogger(FeedReplicationTest.class);
 
     @BeforeMethod(alwaysRun = true)
-    public void setUp(Method method) throws JAXBException, IOException {
-        LOGGER.info("test name: " + method.getName());
+    public void setUp() throws JAXBException, IOException {
         Bundle bundle = BundleUtil.readFeedReplicationBundle();
 
         bundles[0] = new Bundle(bundle, cluster1);
@@ -93,7 +91,7 @@ public class FeedReplicationTest extends BaseTestClass {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
-        removeBundles();
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     /**
@@ -352,10 +350,5 @@ public class FeedReplicationTest extends BaseTestClass {
             .getAllFilesRecursivelyHDFS(cluster2FS, toTarget);
         LOGGER.info("Data on target cluster: " + cluster2ReplicatedData);
         AssertUtil.checkForListSizes(cluster1ReplicatedData, cluster2ReplicatedData);
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
     }
 }

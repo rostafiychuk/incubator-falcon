@@ -27,6 +27,7 @@ import org.apache.falcon.entity.v0.feed.ClusterType;
 import org.apache.falcon.regression.core.helpers.ColoHelper;
 import org.apache.falcon.regression.core.util.AssertUtil;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.HadoopUtil;
 import org.apache.falcon.regression.core.util.InstanceUtil;
 import org.apache.falcon.regression.core.util.OSUtil;
@@ -37,14 +38,12 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.log4j.Logger;
 import org.apache.oozie.client.CoordinatorAction.Status;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 /**
  * Update replication feed tests.
@@ -75,8 +74,7 @@ public class PrismFeedReplicationUpdateTest extends BaseTestClass {
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void setUp(Method method) throws Exception {
-        LOGGER.info("test name: " + method.getName());
+    public void setUp() throws Exception {
         Bundle bundle = BundleUtil.readELBundle();
 
         for (int i = 0; i < 3; i++) {
@@ -88,7 +86,7 @@ public class PrismFeedReplicationUpdateTest extends BaseTestClass {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
-        removeBundles();
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     /**
@@ -313,10 +311,5 @@ public class PrismFeedReplicationUpdateTest extends BaseTestClass {
         feed01 = InstanceUtil.setFeedFilePath(feed01, alternativeInputPath);
         LOGGER.info("updated feed: " + Util.prettyPrintXml(feed01));
         AssertUtil.assertSucceeded(prism.getFeedHelper().update(feed01, feed01));
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
     }
 }

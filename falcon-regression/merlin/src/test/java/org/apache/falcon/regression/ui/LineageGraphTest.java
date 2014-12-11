@@ -28,6 +28,7 @@ import org.apache.falcon.regression.core.response.lineage.Edge;
 import org.apache.falcon.regression.core.response.lineage.Vertex;
 import org.apache.falcon.regression.core.response.lineage.VerticesResult;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.HadoopUtil;
 import org.apache.falcon.regression.core.util.InstanceUtil;
 import org.apache.falcon.regression.core.util.OSUtil;
@@ -127,8 +128,7 @@ public class LineageGraphTest extends BaseUITestClass {
     @AfterClass(alwaysRun = true)
     public void tearDown() throws IOException {
         closeBrowser();
-        removeBundles();
-        cleanTestDirs();
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     /**

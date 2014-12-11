@@ -24,20 +24,18 @@ import org.apache.falcon.regression.core.helpers.ColoHelper;
 import org.apache.falcon.regression.core.helpers.entity.AbstractEntityHelper;
 import org.apache.falcon.regression.core.util.AssertUtil;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.OSUtil;
 import org.apache.falcon.regression.core.util.Util;
 import org.apache.falcon.regression.testHelper.BaseTestClass;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.TestNGException;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -61,8 +59,7 @@ public class PrismProcessDeleteTest extends BaseTestClass {
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void setUp(Method method) throws Exception {
-        LOGGER.info("test name: " + method.getName());
+    public void setUp() throws Exception {
         bundle = BundleUtil.readLateDataBundle();
         for (int i = 0; i < 2; i++) {
             bundles[i] = new Bundle(bundle, servers.get(i));
@@ -73,7 +70,7 @@ public class PrismProcessDeleteTest extends BaseTestClass {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
-        removeBundles();
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     /* NOTE: All test cases assume that there are two entities scheduled in each colo
@@ -965,10 +962,5 @@ public class PrismProcessDeleteTest extends BaseTestClass {
         temp.put("ua2Store", ua2.getStoreInfo());
 
         return temp;
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
     }
 }

@@ -22,6 +22,7 @@ import org.apache.falcon.regression.core.bundle.Bundle;
 import org.apache.falcon.entity.v0.EntityType;
 import org.apache.falcon.entity.v0.Frequency.TimeUnit;
 import org.apache.falcon.regression.core.helpers.ColoHelper;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.TimeUtil;
 import org.apache.falcon.regression.core.util.HadoopUtil;
 import org.apache.falcon.regression.core.util.BundleUtil;
@@ -38,14 +39,11 @@ import org.apache.oozie.client.CoordinatorAction;
 import org.apache.oozie.client.CoordinatorJob;
 import org.apache.oozie.client.OozieClient;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
@@ -77,8 +75,7 @@ public class ProcessInstanceKillsTest extends BaseTestClass {
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void setup(Method method) throws Exception {
-        LOGGER.info("test name: " + method.getName());
+    public void setup() throws Exception {
         bundles[0] = BundleUtil.readELBundle();
         bundles[0] = new Bundle(bundles[0], cluster);
         bundles[0].generateUniqueBundle();
@@ -91,9 +88,8 @@ public class ProcessInstanceKillsTest extends BaseTestClass {
     }
 
     @AfterMethod(alwaysRun = true)
-    public void tearDown(Method method) {
-        LOGGER.info("tearDown " + method.getName());
-        removeBundles();
+    public void tearDown() {
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     /**
@@ -312,10 +308,5 @@ public class ProcessInstanceKillsTest extends BaseTestClass {
         InstancesResult r = prism.getProcessHelper().getProcessInstanceKill(processName,
                 "?start=2010-01-02T01:00Z&end=2010-01-02T01:04Z");
         InstanceUtil.validateSuccess(r, bundles[0], WorkflowStatus.SUCCEEDED);
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
     }
 }

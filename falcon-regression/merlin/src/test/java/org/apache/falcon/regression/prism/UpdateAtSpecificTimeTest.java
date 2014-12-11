@@ -29,6 +29,7 @@ import org.apache.falcon.regression.core.helpers.ColoHelper;
 import org.apache.falcon.regression.core.response.ServiceResponse;
 import org.apache.falcon.regression.core.util.AssertUtil;
 import org.apache.falcon.regression.core.util.BundleUtil;
+import org.apache.falcon.regression.core.util.CleanupUtil;
 import org.apache.falcon.regression.core.util.HadoopUtil;
 import org.apache.falcon.regression.core.util.InstanceUtil;
 import org.apache.falcon.regression.core.util.OSUtil;
@@ -45,7 +46,6 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.joda.time.DateTime;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -55,7 +55,6 @@ import org.apache.log4j.Logger;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -80,8 +79,7 @@ public class UpdateAtSpecificTimeTest extends BaseTestClass {
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void setup(Method method) throws IOException {
-        LOGGER.info("test name: " + method.getName());
+    public void setup() throws IOException {
         Bundle bundle = BundleUtil.readFeedReplicationBundle();
         bundles[0] = new Bundle(bundle, cluster1);
         bundles[1] = new Bundle(bundle, cluster2);
@@ -99,8 +97,7 @@ public class UpdateAtSpecificTimeTest extends BaseTestClass {
 
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
-        removeBundles();
-        removeBundles(processBundle);
+        CleanupUtil.cleanAllEntities(prism);
     }
 
     @Test(groups = {"singleCluster", "0.3.1", "embedded"}, timeOut = 1200000, enabled = true)
@@ -636,18 +633,5 @@ public class UpdateAtSpecificTimeTest extends BaseTestClass {
         HadoopUtil.flattenAndPutDataInFolder(cluster2FS, OSUtil.SINGLE_FILE,
             testDataDir + "/", dataDates);
         return feed;
-    }
-
-    @AfterMethod(alwaysRun = true)
-    public void tearDown(Method method) {
-        LOGGER.info("tearDown " + method.getName());
-        processBundle.deleteBundle(prism);
-        bundles[0].deleteBundle(prism);
-        processBundle.deleteBundle(prism);
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDownClass() throws IOException {
-        cleanTestDirs();
     }
 }

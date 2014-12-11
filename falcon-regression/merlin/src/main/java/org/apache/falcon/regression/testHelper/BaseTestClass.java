@@ -58,14 +58,16 @@ public class BaseTestClass {
         servers = getServers();
         serverFS = new ArrayList<FileSystem>();
         serverOC = new ArrayList<OozieClient>();
-        for (ColoHelper server : servers) {
-            try {
+        try {
+            for (ColoHelper server : servers) {
                 serverFS.add(server.getClusterHelper().getHadoopFS());
                 serverOC.add(server.getClusterHelper().getOozieClient());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
+            cleanTestsDirs();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
         bundles = new Bundle[serverNames.length];
     }
 
@@ -94,23 +96,8 @@ public class BaseTestClass {
         }
     }
 
-    public final void removeBundles(Bundle... bundlesForDeletion) {
-        for (Bundle bundle : bundlesForDeletion) {
-            if (bundle != null) {
-                bundle.deleteBundle(prism);
-            }
-        }
-        if (bundlesForDeletion != this.bundles) {
-            for (Bundle bundle : this.bundles) {
-                if (bundle != null) {
-                    bundle.deleteBundle(prism);
-                }
-            }
-        }
-    }
-
-    public void cleanTestDirs() throws IOException {
-        if (MerlinConstants.CLEAN_TEST_DIR) {
+    public final void cleanTestsDirs() throws IOException {
+        if (MerlinConstants.CLEAN_TESTS_DIR) {
             for (FileSystem fs : serverFS) {
                 HadoopUtil.deleteDirIfExists(baseHDFSDir, fs);
             }
